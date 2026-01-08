@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RackViz Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; min-height: 100vh; }
+    .header { padding: 16px 24px; background: #111; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { font-size: 18px; font-weight: 600; }
+    .header h1 span { color: #3b82f6; }
+    .controls { display: flex; gap: 8px; }
+    .btn { padding: 8px 16px; background: #1a1a1a; border: 1px solid #333; color: #e0e0e0; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .btn:hover { background: #252525; }
+    .btn.active { background: #3b82f6; border-color: #3b82f6; }
+    .container { display: flex; height: calc(100vh - 57px); }
+    .sidebar { width: 240px; background: #111; border-right: 1px solid #222; padding: 16px; overflow-y: auto; }
+    .sidebar h3 { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #666; margin-bottom: 12px; }
+    .action { display: block; width: 100%; padding: 10px 12px; background: #1a1a1a; border: 1px solid #2a2a2a; color: #e0e0e0; border-radius: 6px; cursor: pointer; font-size: 12px; text-align: left; margin-bottom: 6px; }
+    .action:hover { background: #222; border-color: #3b82f6; }
+    .action code { display: block; margin-top: 4px; font-size: 10px; color: #666; }
+    .main { flex: 1; }
+    #rack-container { width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1><span>Rack</span>Viz Demo</h1>
+    <div class="controls">
+      <button class="btn active" onclick="setTheme('dark')">Dark</button>
+      <button class="btn" onclick="setTheme('light')">Light</button>
+    </div>
+  </header>
+  
+  <div class="container">
+    <aside class="sidebar">
+      <h3>Actions</h3>
+      <button class="action" onclick="rack.toggleView()">Toggle View<code>rack.toggleView()</code></button>
+      <button class="action" onclick="addDevice()">Add Device<code>rack.addDevice()</code></button>
+      <button class="action" onclick="randomizeStatus()">Randomize Status<code>rack.updateDevice()</code></button>
+      <button class="action" onclick="highlightRandom()">Highlight Random<code>rack.highlight()</code></button>
+      <button class="action" onclick="rack.clearHighlight()">Clear Highlights<code>rack.clearHighlight()</code></button>
+      <button class="action" onclick="rack.toggleInfoPanel()">Toggle Info Panel<code>rack.toggleInfoPanel()</code></button>
+      <button class="action" onclick="rack.toggleChassis('blade-chassis')">Toggle Chassis<code>rack.toggleChassis()</code></button>
+      <button class="action" onclick="addRack()">Add Rack<code>rack.addRack()</code></button>
+      <button class="action" onclick="removeLastRack()">Remove Last Rack<code>rack.removeRack()</code></button>
+      <button class="action" onclick="rack.search('server')">Search "server"<code>rack.search()</code></button>
+    </aside>
+    
+    <main class="main">
+      <div id="rack-container"></div>
+    </main>
+  </div>
+  
+  <script type="module">
+    import RackViz, { themes } from '../src/index.js';
+    
+    const demoData = {
+      racks: [
+        {
+          id: 'rack-01',
+          label: 'DC1-R01 (Core)',
+          height: 42,
+          devices: [
+            { id: 'patch-1', slot: 1, height: 1, label: 'Patch Panel', type: 'patch-panel', status: 'online' },
+            { id: 'sw-core-01', slot: 2, height: 1, label: 'core-sw-01', type: 'switch', status: 'online', style: { background: '#0f2922', border: '#1a4a3a', glow: '0 0 8px rgba(34,197,94,0.3)' } },
+            { id: 'sw-core-02', slot: 3, height: 1, label: 'core-sw-02', type: 'switch', status: 'online' },
+            { id: 'fw-edge', slot: 5, height: 2, label: 'fw-edge-01', type: 'firewall', status: 'online', style: { background: '#2e1a1a', border: '#5f2a2a', borderWidth: 2 } },
+            { id: 'hv-01', slot: 8, height: 2, label: 'hypervisor-01', type: 'server', status: 'online' },
+            { id: 'hv-02', slot: 10, height: 2, label: 'hypervisor-02', type: 'server', status: 'warning', style: { border: '#f97316', borderWidth: 2, glow: '0 0 12px rgba(249,115,22,0.4)' } },
+            { id: 'hv-03', slot: 12, height: 2, label: 'hypervisor-03', type: 'server', status: 'maintenance', style: { pattern: 'stripes', patternColor: '#8b5cf6', border: '#8b5cf6' } },
+            { id: 'blade-chassis', slot: 15, height: 10, label: 'Blade Chassis', type: 'blade-chassis', status: 'online', chassis: { slots: 16, blades: [
+              { id: 'blade-01', slot: 1, label: 'blade-01', status: 'online' },
+              { id: 'blade-02', slot: 2, label: 'blade-02', status: 'online' },
+              { id: 'blade-03', slot: 3, label: 'blade-03', status: 'offline' },
+              { id: 'blade-04', slot: 4, label: 'blade-04', status: 'online' },
+              { id: 'blade-05', slot: 5, label: 'blade-05', status: 'warning' },
+              { id: 'blade-08', slot: 8, label: 'blade-08', status: 'online' }
+            ]}},
+            { id: 'storage-01', slot: 28, height: 4, label: 'ceph-node-01', type: 'storage', status: 'online', style: { background: '#1a1a3a', border: '#4a4a8a' } },
+            { id: 'pdu-rear', slot: 35, height: 2, position: 'rear', label: 'PDU-A', type: 'pdu', status: 'online' },
+            { id: 'kvm', slot: 35, height: 1, position: 'front', label: 'KVM Console', type: 'kvm', status: 'online' },
+            { id: 'gpu-node', slot: 38, height: 4, label: 'gpu-node-01', type: 'server', status: 'online', style: { background: 'linear-gradient(135deg, #1a1a2e, #2d1a3d)', border: '#76b900', borderWidth: 2, glow: '0 0 20px rgba(118,185,0,0.3)' } }
+          ]
+        },
+        {
+          id: 'rack-02',
+          label: 'DC1-R02 (Compute)',
+          height: 42,
+          devices: [
+            { id: 'r2-sw', slot: 1, height: 1, label: 'tor-sw-01', type: 'switch', status: 'online' },
+            { id: 'r2-hv-01', slot: 3, height: 2, label: 'hypervisor-04', type: 'server', status: 'online' },
+            { id: 'r2-hv-02', slot: 5, height: 2, label: 'hypervisor-05', type: 'server', status: 'online' },
+            { id: 'r2-hv-03', slot: 7, height: 2, label: 'hypervisor-06', type: 'server', status: 'offline', style: { opacity: 0.5 } }
+          ]
+        }
+      ]
+    };
+    
+    const rack = new RackViz('#rack-container', {
+      tooltip: { trigger: 'hover', delay: 150 },
+      showEmptySlots: true,
+      unitNumbers: { show: true, position: 'left', direction: 'bottom-up' }
+    });
+    
+    rack.load(demoData);
+    
+    window.rack = rack;
+    window.themes = themes;
+    
+    window.setTheme = function(name) {
+      rack.setTheme(name === 'light' ? themes.light : themes.dark);
+      document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    };
+    
+    window.addDevice = function() {
+      const racks = rack.data.racks;
+      const targetRack = racks[Math.floor(Math.random() * racks.length)];
+      const usedSlots = new Set();
+      targetRack.devices.forEach(d => { for (let i = d.slot; i < d.slot + (d.height || 1); i++) usedSlots.add(i); });
+      let slot = null;
+      for (let i = 1; i <= (targetRack.height || 42); i++) { if (!usedSlots.has(i)) { slot = i; break; } }
+      if (slot) rack.addDevice(targetRack.id, { id: 'new-' + Date.now(), slot, height: 1, label: 'New Server', type: 'server', status: 'provisioning' });
+    };
+    
+    window.randomizeStatus = function() {
+      const statuses = ['online', 'offline', 'idle', 'warning', 'maintenance'];
+      rack.data.racks.forEach(r => r.devices.forEach(d => {
+        if (!d.chassis) rack.updateDevice(d.id, { status: statuses[Math.floor(Math.random() * statuses.length)] });
+      }));
+    };
+    
+    window.highlightRandom = function() {
+      const allDevices = [];
+      rack.data.racks.forEach(r => r.devices.forEach(d => allDevices.push(d)));
+      rack.highlight(allDevices[Math.floor(Math.random() * allDevices.length)].id);
+    };
+    
+    let rackNum = 3;
+    window.addRack = function() {
+      rack.addRack({ id: 'rack-0' + rackNum, label: 'DC1-R0' + rackNum, height: 24, devices: [{ id: 'r' + rackNum + '-sw', slot: 1, height: 1, label: 'Switch', type: 'switch', status: 'online' }] });
+      rackNum++;
+    };
+    
+    window.removeLastRack = function() {
+      if (rack.data.racks.length > 1) rack.removeRack(rack.data.racks[rack.data.racks.length - 1].id);
+    };
+  </script>
+</body>
+</html>
