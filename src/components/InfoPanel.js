@@ -1,5 +1,5 @@
 /**
- * Slide-out panel showing rack details
+ * Slide-out panel showing rack details (LEFT side)
  */
 import { escapeHtml } from '../utils/helpers.js';
 
@@ -11,6 +11,8 @@ export class InfoPanel {
   }
   
   open(rackId) {
+    if (!this.rv.options.infoPanel.enabled) return;
+    
     this.isOpen = true;
     this.currentRackId = rackId || this.rv.data.racks[0]?.id;
     this._render();
@@ -24,9 +26,12 @@ export class InfoPanel {
     this.rv.emit('infoPanelClose');
   }
   
-  toggle() {
-    if (this.isOpen) this.close();
-    else this.open();
+  toggle(rackId) {
+    if (this.isOpen && this.currentRackId === rackId) {
+      this.close();
+    } else {
+      this.open(rackId);
+    }
   }
   
   _render() {

@@ -6,51 +6,69 @@
   <title>RackViz Demo</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; min-height: 100vh; }
-    .header { padding: 16px 24px; background: #111; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
-    .header h1 { font-size: 18px; font-weight: 600; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; height: 100vh; display: flex; flex-direction: column; }
+    .header { padding: 10px 16px; background: #111; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .header h1 { font-size: 14px; font-weight: 600; }
     .header h1 span { color: #3b82f6; }
-    .controls { display: flex; gap: 8px; }
-    .btn { padding: 8px 16px; background: #1a1a1a; border: 1px solid #333; color: #e0e0e0; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .controls { display: flex; gap: 4px; }
+    .btn { padding: 5px 10px; background: #1a1a1a; border: 1px solid #333; color: #e0e0e0; border-radius: 3px; cursor: pointer; font-size: 11px; }
     .btn:hover { background: #252525; }
     .btn.active { background: #3b82f6; border-color: #3b82f6; }
-    .container { display: flex; height: calc(100vh - 57px); }
-    .sidebar { width: 240px; background: #111; border-right: 1px solid #222; padding: 16px; overflow-y: auto; }
-    .sidebar h3 { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #666; margin-bottom: 12px; }
-    .action { display: block; width: 100%; padding: 10px 12px; background: #1a1a1a; border: 1px solid #2a2a2a; color: #e0e0e0; border-radius: 6px; cursor: pointer; font-size: 12px; text-align: left; margin-bottom: 6px; }
+    .main-container { display: flex; flex: 1; min-height: 0; }
+    .sidebar { width: 180px; background: #111; border-right: 1px solid #222; padding: 10px; overflow-y: auto; flex-shrink: 0; }
+    .sidebar h3 { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #555; margin: 10px 0 6px; }
+    .sidebar h3:first-child { margin-top: 0; }
+    .action { display: block; width: 100%; padding: 6px 8px; background: #1a1a1a; border: 1px solid #2a2a2a; color: #ccc; border-radius: 3px; cursor: pointer; font-size: 10px; text-align: left; margin-bottom: 3px; }
     .action:hover { background: #222; border-color: #3b82f6; }
-    .action code { display: block; margin-top: 4px; font-size: 10px; color: #666; }
-    .main { flex: 1; }
-    #rack-container { width: 100%; height: 100%; }
+    .rack-area { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    #rack-container { flex: 1; min-height: 0; }
+    .log { height: 70px; background: #0d0d0d; border-top: 1px solid #222; padding: 6px 10px; overflow-y: auto; font-family: 'SF Mono', monospace; font-size: 9px; flex-shrink: 0; }
+    .log.hidden { display: none; }
+    .log-entry { padding: 1px 0; display: flex; gap: 8px; opacity: 0.6; }
+    .log-time { color: #444; }
+    .log-event { color: #3b82f6; min-width: 70px; }
+    .log-data { color: #555; }
   </style>
 </head>
 <body>
   <header class="header">
-    <h1><span>Rack</span>Viz Demo</h1>
+    <h1><span>Rack</span>Viz</h1>
     <div class="controls">
       <button class="btn active" onclick="setTheme('dark')">Dark</button>
       <button class="btn" onclick="setTheme('light')">Light</button>
+      <button class="btn" onclick="toggleLabelFormat()">Label Format</button>
+      <button class="btn" onclick="toggleLog()">Toggle Log</button>
     </div>
   </header>
   
-  <div class="container">
+  <div class="main-container">
     <aside class="sidebar">
-      <h3>Actions</h3>
-      <button class="action" onclick="rack.toggleView()">Toggle View<code>rack.toggleView()</code></button>
-      <button class="action" onclick="addDevice()">Add Device<code>rack.addDevice()</code></button>
-      <button class="action" onclick="randomizeStatus()">Randomize Status<code>rack.updateDevice()</code></button>
-      <button class="action" onclick="highlightRandom()">Highlight Random<code>rack.highlight()</code></button>
-      <button class="action" onclick="rack.clearHighlight()">Clear Highlights<code>rack.clearHighlight()</code></button>
-      <button class="action" onclick="rack.toggleInfoPanel()">Toggle Info Panel<code>rack.toggleInfoPanel()</code></button>
-      <button class="action" onclick="rack.toggleChassis('blade-chassis')">Toggle Chassis<code>rack.toggleChassis()</code></button>
-      <button class="action" onclick="addRack()">Add Rack<code>rack.addRack()</code></button>
-      <button class="action" onclick="removeLastRack()">Remove Last Rack<code>rack.removeRack()</code></button>
-      <button class="action" onclick="rack.search('server')">Search "server"<code>rack.search()</code></button>
+      <h3>View</h3>
+      <button class="action" onclick="rack.toggleView()">Toggle Front/Rear</button>
+      
+      <h3>Devices</h3>
+      <button class="action" onclick="addDevice()">Add Device</button>
+      <button class="action" onclick="randomizeStatus()">Randomize Status</button>
+      <button class="action" onclick="rack.toggleChassis('blade-chassis')">Toggle Chassis</button>
+      
+      <h3>Highlight</h3>
+      <button class="action" onclick="highlightRandom()">Highlight Random</button>
+      <button class="action" onclick="rack.clearHighlight()">Clear All</button>
+      <button class="action" onclick="rack.search('server')">Search "server"</button>
+      
+      <h3>Racks</h3>
+      <button class="action" onclick="addRack()">Add Rack</button>
+      <button class="action" onclick="removeLastRack()">Remove Last</button>
+      
+      <h3>Options</h3>
+      <button class="action" onclick="toggleTooltip()">Toggle Tooltips</button>
+      <button class="action" onclick="toggleInfoPanel()">Toggle Info Panel</button>
     </aside>
     
-    <main class="main">
+    <div class="rack-area">
       <div id="rack-container"></div>
-    </main>
+      <div class="log" id="log"></div>
+    </div>
   </div>
   
   <script type="module">
@@ -63,25 +81,29 @@
           label: 'DC1-R01 (Core)',
           height: 42,
           devices: [
-            { id: 'patch-1', slot: 1, height: 1, label: 'Patch Panel', type: 'patch-panel', status: 'online' },
-            { id: 'sw-core-01', slot: 2, height: 1, label: 'core-sw-01', type: 'switch', status: 'online', style: { background: '#0f2922', border: '#1a4a3a', glow: '0 0 8px rgba(34,197,94,0.3)' } },
+            { id: 'patch-1', slot: 1, height: 1, label: 'Patch Panel A1', type: 'patch', status: 'online' },
+            { id: 'sw-core-01', slot: 2, height: 1, label: 'core-sw-01.dc1.example.com', type: 'switch', status: 'online', style: { background: '#0f2922', border: '#1a4a3a' } },
             { id: 'sw-core-02', slot: 3, height: 1, label: 'core-sw-02', type: 'switch', status: 'online' },
-            { id: 'fw-edge', slot: 5, height: 2, label: 'fw-edge-01', type: 'firewall', status: 'online', style: { background: '#2e1a1a', border: '#5f2a2a', borderWidth: 2 } },
+            { id: 'fw-edge', slot: 5, height: 2, label: 'fw-edge-01', type: 'firewall', status: 'online', style: { background: '#2e1a1a', border: '#5f2a2a' } },
             { id: 'hv-01', slot: 8, height: 2, label: 'hypervisor-01', type: 'server', status: 'online' },
-            { id: 'hv-02', slot: 10, height: 2, label: 'hypervisor-02', type: 'server', status: 'warning', style: { border: '#f97316', borderWidth: 2, glow: '0 0 12px rgba(249,115,22,0.4)' } },
+            { id: 'hv-02', slot: 10, height: 2, label: 'hypervisor-02', type: 'server', status: 'warning', style: { border: '#f97316' } },
             { id: 'hv-03', slot: 12, height: 2, label: 'hypervisor-03', type: 'server', status: 'maintenance', style: { pattern: 'stripes', patternColor: '#8b5cf6', border: '#8b5cf6' } },
-            { id: 'blade-chassis', slot: 15, height: 10, label: 'Blade Chassis', type: 'blade-chassis', status: 'online', chassis: { slots: 16, blades: [
+            { id: 'blade-chassis', slot: 15, height: 10, label: 'Blade Enclosure 1', type: 'blade-chassis', status: 'online', chassis: { slots: 16, blades: [
               { id: 'blade-01', slot: 1, label: 'blade-01', status: 'online' },
               { id: 'blade-02', slot: 2, label: 'blade-02', status: 'online' },
               { id: 'blade-03', slot: 3, label: 'blade-03', status: 'offline' },
               { id: 'blade-04', slot: 4, label: 'blade-04', status: 'online' },
               { id: 'blade-05', slot: 5, label: 'blade-05', status: 'warning' },
-              { id: 'blade-08', slot: 8, label: 'blade-08', status: 'online' }
+              { id: 'blade-06', slot: 6, label: 'blade-06', status: 'online' },
+              { id: 'blade-07', slot: 7, label: 'blade-07', status: 'online' },
+              { id: 'blade-08', slot: 8, label: 'blade-08', status: 'online' },
+              { id: 'blade-10', slot: 10, label: 'blade-10', status: 'maintenance' },
+              { id: 'blade-12', slot: 12, label: 'blade-12', status: 'online' },
             ]}},
             { id: 'storage-01', slot: 28, height: 4, label: 'ceph-node-01', type: 'storage', status: 'online', style: { background: '#1a1a3a', border: '#4a4a8a' } },
-            { id: 'pdu-rear', slot: 35, height: 2, position: 'rear', label: 'PDU-A', type: 'pdu', status: 'online' },
-            { id: 'kvm', slot: 35, height: 1, position: 'front', label: 'KVM Console', type: 'kvm', status: 'online' },
-            { id: 'gpu-node', slot: 38, height: 4, label: 'gpu-node-01', type: 'server', status: 'online', style: { background: 'linear-gradient(135deg, #1a1a2e, #2d1a3d)', border: '#76b900', borderWidth: 2, glow: '0 0 20px rgba(118,185,0,0.3)' } }
+            { id: 'pdu-rear', slot: 35, height: 1, position: 'rear', label: 'PDU-A', type: 'pdu', status: 'online' },
+            { id: 'kvm', slot: 36, height: 1, position: 'front', label: 'KVM Console', type: 'kvm', status: 'online' },
+            { id: 'gpu-node', slot: 38, height: 4, label: 'gpu-compute-01', type: 'gpu-server', status: 'online', style: { background: 'linear-gradient(135deg, #1a1a2e, #2d1a3d)', border: '#76b900' } }
           ]
         },
         {
@@ -92,15 +114,21 @@
             { id: 'r2-sw', slot: 1, height: 1, label: 'tor-sw-01', type: 'switch', status: 'online' },
             { id: 'r2-hv-01', slot: 3, height: 2, label: 'hypervisor-04', type: 'server', status: 'online' },
             { id: 'r2-hv-02', slot: 5, height: 2, label: 'hypervisor-05', type: 'server', status: 'online' },
-            { id: 'r2-hv-03', slot: 7, height: 2, label: 'hypervisor-06', type: 'server', status: 'offline', style: { opacity: 0.5 } }
+            { id: 'r2-hv-03', slot: 7, height: 2, label: 'hypervisor-06', type: 'server', status: 'offline', style: { opacity: 0.5 } },
+            { id: 'r2-hv-04', slot: 9, height: 2, label: 'hypervisor-07', type: 'server', status: 'online' },
+            { id: 'r2-hv-05', slot: 11, height: 2, label: 'hypervisor-08', type: 'server', status: 'online' },
+            { id: 'r2-stor', slot: 14, height: 4, label: 'ceph-node-02', type: 'storage', status: 'online' },
+            { id: 'r2-stor2', slot: 18, height: 4, label: 'ceph-node-03', type: 'storage', status: 'online' }
           ]
         }
       ]
     };
     
     const rack = new RackViz('#rack-container', {
-      tooltip: { trigger: 'hover', delay: 150 },
+      tooltip: { enabled: true, trigger: 'hover', delay: 100 },
+      infoPanel: { enabled: true },
       showEmptySlots: true,
+      labelFormat: 'label-first',
       unitNumbers: { show: true, position: 'left', direction: 'bottom-up' }
     });
     
@@ -109,38 +137,74 @@
     window.rack = rack;
     window.themes = themes;
     
+    // Log
+    const logEl = document.getElementById('log');
+    function log(event, data) {
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `<span class="log-time">${new Date().toLocaleTimeString()}</span><span class="log-event">${event}</span><span class="log-data">${JSON.stringify(data).slice(0,50)}</span>`;
+      logEl.insertBefore(entry, logEl.firstChild);
+      if (logEl.children.length > 30) logEl.removeChild(logEl.lastChild);
+    }
+    
+    rack.on('deviceClick', d => log('deviceClick', { id: d.id }));
+    rack.on('rackClick', r => log('rackClick', { id: r.id }));
+    rack.on('viewChange', v => log('viewChange', { view: v }));
+    rack.on('chassisExpand', id => log('chassisExpand', { id }));
+    rack.on('chassisCollapse', id => log('chassisCollapse', { id }));
+    rack.on('deviceNameCopied', (d, name) => log('copied', { name }));
+    
+    log('init', { racks: 2 });
+    
+    // Actions
     window.setTheme = function(name) {
       rack.setTheme(name === 'light' ? themes.light : themes.dark);
-      document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+      document.querySelectorAll('.header .btn').forEach((b, i) => b.classList.toggle('active', i === (name === 'dark' ? 0 : 1)));
+    };
+    
+    window.toggleLog = function() {
+      logEl.classList.toggle('hidden');
+    };
+    
+    let labelFormat = 'label-first';
+    window.toggleLabelFormat = function() {
+      labelFormat = labelFormat === 'label-first' ? 'type-first' : 'label-first';
+      rack.setOption('labelFormat', labelFormat);
+    };
+    
+    window.toggleTooltip = function() {
+      rack.setOption('tooltip.enabled', !rack.options.tooltip.enabled);
+    };
+    
+    window.toggleInfoPanel = function() {
+      rack.setOption('infoPanel.enabled', !rack.options.infoPanel.enabled);
     };
     
     window.addDevice = function() {
-      const racks = rack.data.racks;
-      const targetRack = racks[Math.floor(Math.random() * racks.length)];
+      const targetRack = rack.data.racks[Math.floor(Math.random() * rack.data.racks.length)];
       const usedSlots = new Set();
       targetRack.devices.forEach(d => { for (let i = d.slot; i < d.slot + (d.height || 1); i++) usedSlots.add(i); });
       let slot = null;
       for (let i = 1; i <= (targetRack.height || 42); i++) { if (!usedSlots.has(i)) { slot = i; break; } }
-      if (slot) rack.addDevice(targetRack.id, { id: 'new-' + Date.now(), slot, height: 1, label: 'New Server', type: 'server', status: 'provisioning' });
+      if (slot) rack.addDevice(targetRack.id, { id: 'new-' + Date.now(), slot, height: 1, label: 'new-srv-' + Math.floor(Math.random()*100), type: 'server', status: 'provisioning' });
     };
     
     window.randomizeStatus = function() {
-      const statuses = ['online', 'offline', 'idle', 'warning', 'maintenance'];
+      const statuses = ['online', 'offline', 'idle', 'warning', 'maintenance', 'critical'];
       rack.data.racks.forEach(r => r.devices.forEach(d => {
         if (!d.chassis) rack.updateDevice(d.id, { status: statuses[Math.floor(Math.random() * statuses.length)] });
       }));
     };
     
     window.highlightRandom = function() {
-      const allDevices = [];
-      rack.data.racks.forEach(r => r.devices.forEach(d => allDevices.push(d)));
-      rack.highlight(allDevices[Math.floor(Math.random() * allDevices.length)].id);
+      const all = [];
+      rack.data.racks.forEach(r => r.devices.forEach(d => all.push(d)));
+      rack.highlight(all[Math.floor(Math.random() * all.length)].id);
     };
     
     let rackNum = 3;
     window.addRack = function() {
-      rack.addRack({ id: 'rack-0' + rackNum, label: 'DC1-R0' + rackNum, height: 24, devices: [{ id: 'r' + rackNum + '-sw', slot: 1, height: 1, label: 'Switch', type: 'switch', status: 'online' }] });
+      rack.addRack({ id: 'rack-0' + rackNum, label: 'DC1-R0' + rackNum, height: 42, devices: [{ id: 'r' + rackNum + '-sw', slot: 1, height: 1, label: 'tor-sw-0' + rackNum, type: 'switch', status: 'online' }] });
       rackNum++;
     };
     

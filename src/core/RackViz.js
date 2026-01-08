@@ -15,13 +15,14 @@ const DEFAULT_OPTIONS = {
   view: 'front',
   showViewToggle: true,
   showFullscreenToggle: true,
-  showInfoPanel: true,
   showEmptySlots: true,
   unitNumbers: { show: true, position: 'left', direction: 'bottom-up' },
   showOppositeSide: 'ghost',
   tooltip: { enabled: true, trigger: 'hover', delay: 200, position: 'auto' },
+  infoPanel: { enabled: true },
   layout: 'horizontal',
-  rackSpacing: 24,
+  rackSpacing: 16,
+  labelFormat: 'label-first',
   animate: true,
   animationDuration: 200,
   diffUpdates: true
@@ -68,6 +69,10 @@ export class RackViz extends EventEmitter {
     this.root = document.createElement('div');
     this.root.className = 'rv-root';
     
+    this.infoPanelEl = document.createElement('div');
+    this.infoPanelEl.className = 'rv-info-panel';
+    this.root.appendChild(this.infoPanelEl);
+    
     this.viewport = document.createElement('div');
     this.viewport.className = 'rv-viewport';
     
@@ -83,10 +88,6 @@ export class RackViz extends EventEmitter {
     this.tooltipEl = document.createElement('div');
     this.tooltipEl.className = 'rv-tooltip';
     this.root.appendChild(this.tooltipEl);
-    
-    this.infoPanelEl = document.createElement('div');
-    this.infoPanelEl.className = 'rv-info-panel';
-    this.root.appendChild(this.infoPanelEl);
   }
   
   _createControls() {
@@ -97,11 +98,6 @@ export class RackViz extends EventEmitter {
       this.viewToggleBtn = this._createBtn('Toggle View', () => this.toggleView());
       this.viewToggleBtn.innerHTML = this._getViewIcon();
       this.controlsEl.appendChild(this.viewToggleBtn);
-    }
-    if (this.options.showInfoPanel) {
-      this.infoPanelBtn = this._createBtn('Rack Info', () => this.toggleInfoPanel());
-      this.infoPanelBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>';
-      this.controlsEl.appendChild(this.infoPanelBtn);
     }
     if (this.options.showFullscreenToggle) {
       this.fullscreenBtn = this._createBtn('Fullscreen', () => this.toggleFullscreen());
@@ -122,8 +118,8 @@ export class RackViz extends EventEmitter {
   
   _getViewIcon() {
     return this.currentView === 'front'
-      ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5v14h18V5H3zm16 12H5V7h14v10zm-7-5h3v3h-3v-3zm0-4h3v3h-3V8zm-4 4h3v3H8v-3zm0-4h3v3H8V8z"/></svg>'
-      : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5v14h18V5H3zm16 12H5V7h14v10zm-2-9h-2v2h2V8zm0 3h-2v2h2v-2zm0 3h-2v2h2v-2z"/></svg>';
+      ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5v14h18V5H3zm16 12H5V7h14v10z"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5v14h18V5H3zm16 12H5V7h14v10zm-2-9h-2v8h2V8z"/></svg>';
   }
   
   _injectStyles() {
@@ -145,7 +141,6 @@ export class RackViz extends EventEmitter {
 [data-rv-id="${id}"] {
   --rv-font: ${t.typography.fontFamily};
   --rv-font-mono: ${t.typography.fontMono};
-  --rv-font-size: ${t.typography.fontSize}px;
   --rv-bg: ${t.colors.background};
   --rv-text: ${t.colors.text};
   --rv-text-muted: ${t.colors.textMuted};
@@ -157,20 +152,17 @@ export class RackViz extends EventEmitter {
   height: 100%;
   background: var(--rv-bg);
   font-family: var(--rv-font);
-  font-size: var(--rv-font-size);
+  font-size: 12px;
   color: var(--rv-text);
   overflow: hidden;
 }
 
-[data-rv-id="${id}"] *, [data-rv-id="${id}"] *::before, [data-rv-id="${id}"] *::after {
-  box-sizing: border-box;
-}
+[data-rv-id="${id}"] * { box-sizing: border-box; margin: 0; padding: 0; }
 
 [data-rv-id="${id}"] .rv-root {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
   position: relative;
 }
 
@@ -178,40 +170,38 @@ export class RackViz extends EventEmitter {
   flex: 1;
   overflow: auto;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 24px;
+  padding: 12px;
 }
 
 [data-rv-id="${id}"] .rv-racks {
   display: flex;
   gap: ${o.rackSpacing}px;
-  flex-direction: ${o.layout === 'vertical' ? 'column' : 'row'};
   align-items: flex-start;
 }
 
+/* Controls */
 [data-rv-id="${id}"] .rv-controls {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 6px;
+  right: 6px;
   display: flex;
   gap: 4px;
   z-index: 100;
 }
 
 [data-rv-id="${id}"] .rv-btn {
-  width: 32px;
-  height: 32px;
-  padding: 0;
+  width: 26px;
+  height: 26px;
   border: 1px solid var(--rv-border);
-  border-radius: ${t.controls.borderRadius}px;
+  border-radius: 4px;
   background: ${t.controls.background};
   color: var(--rv-text);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--rv-duration) ease;
 }
 
 [data-rv-id="${id}"] .rv-btn:hover {
@@ -219,24 +209,16 @@ export class RackViz extends EventEmitter {
   border-color: var(--rv-accent);
 }
 
-[data-rv-id="${id}"] .rv-btn svg {
-  width: 18px;
-  height: 18px;
-}
+[data-rv-id="${id}"] .rv-btn svg { width: 14px; height: 14px; }
 
+/* Rack */
 [data-rv-id="${id}"] .rv-rack {
   display: flex;
   flex-direction: column;
   background: ${t.rack.frame};
   border: 1px solid ${t.rack.border};
-  border-radius: ${t.rack.borderRadius}px;
-  box-shadow: ${t.rack.shadow};
+  border-radius: 3px;
   overflow: hidden;
-  transition: box-shadow var(--rv-duration) ease;
-}
-
-[data-rv-id="${id}"] .rv-rack:hover {
-  box-shadow: ${t.rack.shadowHover};
 }
 
 [data-rv-id="${id}"] .rv-rack.rv-rack-highlighted {
@@ -245,39 +227,45 @@ export class RackViz extends EventEmitter {
 }
 
 [data-rv-id="${id}"] .rv-rack-header {
-  padding: 10px 12px;
+  height: 32px;
+  padding: 0 8px;
   background: ${t.rack.header};
   border-bottom: 1px solid var(--rv-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
+  flex-shrink: 0;
 }
+
+[data-rv-id="${id}"] .rv-rack-header:hover { background: ${t.colors.backgroundSecondary}; }
 
 [data-rv-id="${id}"] .rv-rack-label {
   font-weight: 600;
-  font-size: 13px;
+  font-size: 11px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 [data-rv-id="${id}"] .rv-rack-meta {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--rv-text-muted);
+  margin-left: 6px;
 }
 
+/* Rack Body - CSS Grid */
 [data-rv-id="${id}"] .rv-rack-body {
   display: flex;
-  flex-direction: row;
+  flex-shrink: 0;
 }
 
+/* Rail - CSS Grid */
 [data-rv-id="${id}"] .rv-rail {
+  display: grid;
   background: ${t.rack.rail};
-  display: flex;
-  flex-direction: column;
-  padding: 2px 0;
-  min-width: 28px;
+  width: 22px;
+  flex-shrink: 0;
 }
 
 [data-rv-id="${id}"] .rv-rail-unit {
@@ -285,229 +273,213 @@ export class RackViz extends EventEmitter {
   align-items: center;
   justify-content: center;
   font-family: var(--rv-font-mono);
-  font-size: 9px;
+  font-size: 8px;
   color: ${t.rack.unitMarker};
   user-select: none;
+  border-bottom: 1px solid ${t.rack.inner};
 }
+
+[data-rv-id="${id}"] .rv-rail-unit:last-child { border-bottom: none; }
 
 [data-rv-id="${id}"] .rv-rail-unit.rv-rail-unit-highlight {
   color: ${t.rack.unitMarkerHighlight};
   font-weight: 600;
 }
 
+/* Rack Inner - CSS Grid */
 [data-rv-id="${id}"] .rv-rack-inner {
+  display: grid;
   flex: 1;
   background: ${t.rack.inner};
-  display: flex;
-  flex-direction: column;
-  padding: 2px;
-  gap: 1px;
 }
 
+/* Slots */
 [data-rv-id="${id}"] .rv-slot {
-  position: relative;
-  display: flex;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
 }
+
+[data-rv-id="${id}"] .rv-slot:last-child { border-bottom: none; }
 
 [data-rv-id="${id}"] .rv-slot-empty {
-  flex: 1;
   border: 1px dashed ${t.rack.emptySlot};
   border-radius: 2px;
-  opacity: 0.4;
-  transition: opacity var(--rv-duration) ease;
+  margin: 1px 2px;
+  opacity: 0.25;
 }
 
 [data-rv-id="${id}"] .rv-slot-empty:hover {
-  opacity: 0.6;
+  opacity: 0.4;
   border-color: var(--rv-accent);
 }
 
+[data-rv-id="${id}"] .rv-slot-hidden { visibility: hidden; }
+
+/* Device */
 [data-rv-id="${id}"] .rv-device {
-  flex: 1;
   display: flex;
   align-items: center;
-  padding: 0 10px;
+  padding: 0 6px;
+  margin: 1px 2px;
   background: ${t.device.background};
-  border: ${t.device.borderWidth}px ${t.device.borderStyle} ${t.device.border};
-  border-radius: ${t.device.borderRadius}px;
+  border: 1px solid ${t.device.border};
+  border-radius: 2px;
   cursor: pointer;
-  position: relative;
   overflow: hidden;
-  transition: all var(--rv-duration) ease;
 }
 
 [data-rv-id="${id}"] .rv-device:hover {
   background: ${t.device.backgroundHover};
   border-color: ${t.device.borderHover};
-  box-shadow: ${t.device.shadowHover};
-  z-index: 10;
+  z-index: 5;
 }
 
 [data-rv-id="${id}"] .rv-device.rv-device-highlighted {
   outline: 2px solid var(--rv-accent);
-  outline-offset: 1px;
-  animation: rv-pulse-${id} 1s ease-in-out infinite;
-}
-
-@keyframes rv-pulse-${id} {
-  0%, 100% { outline-color: var(--rv-accent); }
-  50% { outline-color: transparent; }
+  outline-offset: -1px;
+  z-index: 10;
 }
 
 [data-rv-id="${id}"] .rv-device.rv-device-ghost {
-  opacity: 0.35;
+  opacity: 0.3;
   pointer-events: none;
 }
 
+/* Status */
 [data-rv-id="${id}"] .rv-device-status {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  margin-right: 10px;
+  margin-right: 5px;
   flex-shrink: 0;
 }
 
-[data-rv-id="${id}"] .rv-device-status[data-status="online"] {
-  background: ${t.status.online};
-  box-shadow: 0 0 6px ${t.status.online};
-}
-
-[data-rv-id="${id}"] .rv-device-status[data-status="offline"] {
-  background: ${t.status.offline};
-}
-
-[data-rv-id="${id}"] .rv-device-status[data-status="idle"] {
-  background: ${t.status.idle};
-}
-
-[data-rv-id="${id}"] .rv-device-status[data-status="warning"] {
-  background: ${t.status.warning};
-  animation: rv-blink-${id} 1s infinite;
-}
-
-[data-rv-id="${id}"] .rv-device-status[data-status="critical"] {
-  background: ${t.status.critical};
-  animation: rv-blink-${id} 0.5s infinite;
-}
-
-[data-rv-id="${id}"] .rv-device-status[data-status="maintenance"] {
-  background: ${t.status.maintenance};
-}
-
-[data-rv-id="${id}"] .rv-device-status[data-status="provisioning"] {
-  background: ${t.status.provisioning};
-  animation: rv-blink-${id} 1.5s infinite;
-}
-
+[data-rv-id="${id}"] .rv-device-status[data-status="online"] { background: ${t.status.online}; box-shadow: 0 0 4px ${t.status.online}; }
+[data-rv-id="${id}"] .rv-device-status[data-status="offline"] { background: ${t.status.offline}; }
+[data-rv-id="${id}"] .rv-device-status[data-status="idle"] { background: ${t.status.idle}; }
+[data-rv-id="${id}"] .rv-device-status[data-status="warning"] { background: ${t.status.warning}; }
+[data-rv-id="${id}"] .rv-device-status[data-status="critical"] { background: ${t.status.critical}; }
+[data-rv-id="${id}"] .rv-device-status[data-status="maintenance"] { background: ${t.status.maintenance}; }
+[data-rv-id="${id}"] .rv-device-status[data-status="provisioning"] { background: ${t.status.provisioning}; }
 [data-rv-id="${id}"] .rv-device-status[data-status="decommissioned"],
-[data-rv-id="${id}"] .rv-device-status[data-status="unknown"] {
-  background: ${t.status.unknown};
-}
+[data-rv-id="${id}"] .rv-device-status[data-status="unknown"] { background: ${t.status.unknown}; }
 
-@keyframes rv-blink-${id} {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-[data-rv-id="${id}"] .rv-device-info {
+/* Labels */
+[data-rv-id="${id}"] .rv-device-label-container {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 1px;
+  overflow: hidden;
 }
 
 [data-rv-id="${id}"] .rv-device-label {
-  font-weight: 500;
-  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.3;
+  font-size: 10px;
 }
 
-[data-rv-id="${id}"] .rv-device-type {
-  font-size: 10px;
+[data-rv-id="${id}"] .rv-device-name {
+  font-weight: 500;
+  cursor: pointer;
+}
+
+[data-rv-id="${id}"] .rv-device-name.rv-copied { color: var(--rv-accent); }
+
+[data-rv-id="${id}"] .rv-device-separator {
+  margin: 0 4px;
   color: var(--rv-text-muted);
+  font-size: 4px;
+}
+
+[data-rv-id="${id}"] .rv-device-type-inline {
+  color: var(--rv-text-muted);
+  font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  line-height: 1.2;
 }
 
 [data-rv-id="${id}"] .rv-device-position-badge {
-  font-size: 9px;
+  font-size: 8px;
   color: var(--rv-text-muted);
   background: rgba(255,255,255,0.1);
-  padding: 2px 5px;
-  border-radius: 3px;
-  margin-left: 8px;
+  padding: 1px 3px;
+  border-radius: 2px;
+  margin-left: 4px;
 }
 
+/* Label scroll */
+[data-rv-id="${id}"] .rv-device-label.rv-label-scrolling {
+  animation: rv-scroll-${id} 3s linear infinite;
+}
+
+@keyframes rv-scroll-${id} {
+  0%, 15% { transform: translateX(0); }
+  85%, 100% { transform: translateX(var(--scroll-distance, -50px)); }
+}
+
+/* Chassis */
 [data-rv-id="${id}"] .rv-chassis {
-  flex: 1;
   display: flex;
   flex-direction: column;
+  margin: 1px 2px;
   background: ${t.device.background};
-  border: 2px solid ${t.device.border};
-  border-radius: ${t.device.borderRadius}px;
+  border: 1px solid ${t.device.border};
+  border-radius: 2px;
   overflow: hidden;
 }
 
 [data-rv-id="${id}"] .rv-chassis-header {
   display: flex;
   align-items: center;
-  padding: 6px 10px;
+  padding: 3px 5px;
   background: rgba(255,255,255,0.03);
-  border-bottom: 1px solid var(--rv-border);
   cursor: pointer;
-  transition: background var(--rv-duration) ease;
+  flex-shrink: 0;
+  min-height: 20px;
 }
 
-[data-rv-id="${id}"] .rv-chassis-header:hover {
-  background: rgba(255,255,255,0.06);
-}
+[data-rv-id="${id}"] .rv-chassis-header:hover { background: rgba(255,255,255,0.06); }
 
 [data-rv-id="${id}"] .rv-chassis-toggle {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
+  width: 12px;
+  height: 12px;
+  margin-right: 4px;
   color: var(--rv-text-muted);
-  transition: transform var(--rv-duration) ease;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
 }
 
-[data-rv-id="${id}"] .rv-chassis-toggle svg {
-  width: 16px;
-  height: 16px;
-}
+[data-rv-id="${id}"] .rv-chassis-toggle svg { width: 12px; height: 12px; }
 
 [data-rv-id="${id}"] .rv-chassis.rv-chassis-expanded .rv-chassis-toggle {
-  transform: rotate(45deg);
+  transform: rotate(90deg);
 }
 
 [data-rv-id="${id}"] .rv-chassis-body {
   display: none;
-  padding: 6px;
-  gap: 4px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 3px;
+  gap: 2px;
+  border-top: 1px solid var(--rv-border);
 }
 
 [data-rv-id="${id}"] .rv-chassis.rv-chassis-expanded .rv-chassis-body {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
 }
 
+/* Blade */
 [data-rv-id="${id}"] .rv-blade {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8px 4px;
+  padding: 3px 2px;
   background: rgba(0,0,0,0.3);
   border: 1px solid var(--rv-border);
-  border-radius: 3px;
+  border-radius: 2px;
   cursor: pointer;
-  transition: all var(--rv-duration) ease;
-  min-height: 50px;
+  min-height: 28px;
 }
 
 [data-rv-id="${id}"] .rv-blade:hover {
@@ -517,13 +489,12 @@ export class RackViz extends EventEmitter {
 
 [data-rv-id="${id}"] .rv-blade-slot {
   font-family: var(--rv-font-mono);
-  font-size: 9px;
+  font-size: 7px;
   color: var(--rv-text-muted);
-  margin-bottom: 4px;
 }
 
 [data-rv-id="${id}"] .rv-blade-label {
-  font-size: 10px;
+  font-size: 7px;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
@@ -536,99 +507,77 @@ export class RackViz extends EventEmitter {
   border-style: dashed;
 }
 
+/* Tooltip */
 [data-rv-id="${id}"] .rv-tooltip {
   position: fixed;
   z-index: 10000;
   background: ${t.tooltip.background};
   border: 1px solid ${t.tooltip.border};
-  border-radius: ${t.tooltip.borderRadius}px;
-  padding: ${t.tooltip.padding}px;
-  max-width: ${t.tooltip.maxWidth}px;
-  min-width: ${t.tooltip.minWidth}px;
+  border-radius: 4px;
+  padding: 6px 8px;
+  max-width: 250px;
+  min-width: 120px;
   box-shadow: ${t.tooltip.shadow};
   pointer-events: none;
   opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 150ms ease, transform 150ms ease;
-  font-size: ${t.tooltip.fontSize}px;
-  line-height: 1.5;
+  font-size: 10px;
 }
 
-[data-rv-id="${id}"] .rv-tooltip.rv-tooltip-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+[data-rv-id="${id}"] .rv-tooltip.rv-tooltip-visible { opacity: 1; }
 
 [data-rv-id="${id}"] .rv-tooltip-title {
   font-weight: 600;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
   border-bottom: 1px solid ${t.tooltip.titleBorder};
 }
 
 [data-rv-id="${id}"] .rv-tooltip-row {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
-  padding: 3px 0;
+  gap: 10px;
+  padding: 2px 0;
 }
 
-[data-rv-id="${id}"] .rv-tooltip-label {
-  color: var(--rv-text-muted);
-}
+[data-rv-id="${id}"] .rv-tooltip-label { color: var(--rv-text-muted); }
+[data-rv-id="${id}"] .rv-tooltip-value { font-family: var(--rv-font-mono); }
 
-[data-rv-id="${id}"] .rv-tooltip-value {
-  color: var(--rv-text);
-  font-family: var(--rv-font-mono);
-  text-align: right;
-}
-
+/* Info Panel (LEFT) */
 [data-rv-id="${id}"] .rv-info-panel {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: ${t.infoPanel.width}px;
-  max-width: 90%;
+  width: 0;
   height: 100%;
   background: ${t.infoPanel.background};
-  border-left: 1px solid var(--rv-border);
-  box-shadow: ${t.infoPanel.shadow};
-  z-index: 200;
+  border-right: 1px solid var(--rv-border);
   display: flex;
   flex-direction: column;
-  transform: translateX(100%);
-  transition: transform 250ms ease;
+  overflow: hidden;
+  transition: width 0.15s ease;
+  flex-shrink: 0;
 }
 
-[data-rv-id="${id}"] .rv-info-panel.rv-info-panel-open {
-  transform: translateX(0);
-}
+[data-rv-id="${id}"] .rv-info-panel.rv-info-panel-open { width: 220px; }
 
 [data-rv-id="${id}"] .rv-info-panel-header {
-  padding: 14px 16px;
+  padding: 10px;
   border-bottom: 1px solid var(--rv-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-shrink: 0;
 }
 
 [data-rv-id="${id}"] .rv-info-panel-title {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 [data-rv-id="${id}"] .rv-info-panel-close {
   background: none;
   border: none;
-  padding: 4px;
+  padding: 2px;
   cursor: pointer;
   color: var(--rv-text-muted);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: color var(--rv-duration) ease, background var(--rv-duration) ease;
+  border-radius: 2px;
 }
 
 [data-rv-id="${id}"] .rv-info-panel-close:hover {
@@ -636,130 +585,102 @@ export class RackViz extends EventEmitter {
   background: rgba(255,255,255,0.1);
 }
 
-[data-rv-id="${id}"] .rv-info-panel-close svg {
-  width: 18px;
-  height: 18px;
-}
+[data-rv-id="${id}"] .rv-info-panel-close svg { width: 14px; height: 14px; }
 
 [data-rv-id="${id}"] .rv-info-panel-body {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 10px;
 }
 
-[data-rv-id="${id}"] .rv-info-section {
-  margin-bottom: 24px;
-}
-
-[data-rv-id="${id}"] .rv-info-section:last-child {
-  margin-bottom: 0;
-}
+[data-rv-id="${id}"] .rv-info-section { margin-bottom: 12px; }
 
 [data-rv-id="${id}"] .rv-info-section-title {
-  font-size: 10px;
+  font-size: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--rv-text-muted);
-  margin-bottom: 10px;
+  margin-bottom: 4px;
   font-weight: 600;
 }
 
 [data-rv-id="${id}"] .rv-info-stat {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 3px 0;
+  font-size: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
-[data-rv-id="${id}"] .rv-info-stat:last-child {
-  border-bottom: none;
-}
-
-[data-rv-id="${id}"] .rv-info-stat-label {
-  color: var(--rv-text-muted);
-}
-
-[data-rv-id="${id}"] .rv-info-stat-value {
-  font-family: var(--rv-font-mono);
-}
+[data-rv-id="${id}"] .rv-info-stat:last-child { border-bottom: none; }
+[data-rv-id="${id}"] .rv-info-stat-label { color: var(--rv-text-muted); }
+[data-rv-id="${id}"] .rv-info-stat-value { font-family: var(--rv-font-mono); }
 
 [data-rv-id="${id}"] .rv-info-device-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 [data-rv-id="${id}"] .rv-info-device-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: 5px;
+  padding: 4px 5px;
   background: ${t.infoPanel.itemBackground};
-  border-radius: 4px;
+  border-radius: 2px;
   cursor: pointer;
-  transition: background var(--rv-duration) ease;
+  font-size: 9px;
 }
 
-[data-rv-id="${id}"] .rv-info-device-item:hover {
-  background: ${t.infoPanel.itemBackgroundHover};
-}
+[data-rv-id="${id}"] .rv-info-device-item:hover { background: ${t.infoPanel.itemBackgroundHover}; }
 
 [data-rv-id="${id}"] .rv-info-device-slot {
   font-family: var(--rv-font-mono);
-  font-size: 10px;
+  font-size: 8px;
   color: var(--rv-text-muted);
-  min-width: 28px;
+  min-width: 24px;
 }
 
 [data-rv-id="${id}"] .rv-info-device-name {
   flex: 1;
-  font-size: 12px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 [data-rv-id="${id}"] .rv-info-device-status {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
 }
 
+/* Fullscreen */
 [data-rv-id="${id}"].rv-fullscreen {
   position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
+  inset: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
   z-index: 999999 !important;
 }
 
-[data-rv-id="${id}"] .rv-viewport::-webkit-scrollbar {
-  width: ${t.scrollbar.width}px;
-  height: ${t.scrollbar.width}px;
-}
-
-[data-rv-id="${id}"] .rv-viewport::-webkit-scrollbar-track {
-  background: ${t.scrollbar.track};
-}
-
-[data-rv-id="${id}"] .rv-viewport::-webkit-scrollbar-thumb {
-  background: ${t.scrollbar.thumb};
-  border-radius: ${t.scrollbar.borderRadius}px;
-}
-
-[data-rv-id="${id}"] .rv-viewport::-webkit-scrollbar-thumb:hover {
-  background: ${t.scrollbar.thumbHover};
-}
+/* Scrollbar */
+[data-rv-id="${id}"] ::-webkit-scrollbar { width: 5px; height: 5px; }
+[data-rv-id="${id}"] ::-webkit-scrollbar-track { background: transparent; }
+[data-rv-id="${id}"] ::-webkit-scrollbar-thumb { background: ${t.scrollbar.thumb}; border-radius: 3px; }
+[data-rv-id="${id}"] ::-webkit-scrollbar-thumb:hover { background: ${t.scrollbar.thumbHover}; }
     `;
   }
   
   _setupResizeObserver() {
+    let initialRender = true;
     this.resizeObserver = new ResizeObserver(entries => {
       for (const entry of entries) {
-        this.scaleManager.update(entry.contentRect);
+        // Only recalculate on initial render, not on zoom
+        if (initialRender) {
+          this.scaleManager.update(entry.contentRect);
+          initialRender = false;
+        }
         this.emit('resize', entry.contentRect);
       }
     });
@@ -774,22 +695,23 @@ export class RackViz extends EventEmitter {
     
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        if (this.infoPanel.isOpen) this.closeInfoPanel();
+        if (this.infoPanel.isOpen) this.infoPanel.close();
         this.tooltipManager.hide();
       }
     });
     
     document.addEventListener('click', (e) => {
-      if (this.options.tooltip.trigger === 'click' && !e.target.closest('.rv-device, .rv-blade, .rv-tooltip')) {
+      if (this.options.tooltip.trigger === 'click' && !e.target.closest('.rv-device, .rv-blade, .rv-tooltip, .rv-chassis-header')) {
         this.tooltipManager.hide();
       }
     });
   }
   
-  // === DATA ===
+  // DATA
   load(data) {
     this.data = this._normalizeData(data);
-    this.render();
+    this.scaleManager.update();
+    this.renderer.render();
     this.emit('load', this.data);
     return this;
   }
@@ -800,14 +722,14 @@ export class RackViz extends EventEmitter {
       const changes = this.diffEngine.diff(this.data, newData);
       if (changes.requiresFullRender) {
         this.data = newData;
-        this.render();
+        this.renderer.render();
       } else {
         this.data = newData;
         this.renderer.applyChanges(changes);
       }
     } else {
       this.data = newData;
-      this.render();
+      this.renderer.render();
     }
     this.emit('update', this.data);
     return this;
@@ -818,19 +740,14 @@ export class RackViz extends EventEmitter {
     return { racks: data.racks || [] };
   }
   
-  // === RACKS ===
-  addRack(rackData, options = {}) {
+  // RACKS
+  addRack(rackData) {
     const rack = { ...rackData };
     if (!rack.id) rack.id = generateId('rack');
     if (!rack.devices) rack.devices = [];
-    
-    let index = this.data.racks.length;
-    if (typeof options.position === 'number') {
-      index = Math.max(0, Math.min(options.position, this.data.racks.length));
-    }
-    
-    this.data.racks.splice(index, 0, rack);
-    this.render();
+    this.data.racks.push(rack);
+    this.scaleManager.update();
+    this.renderer.render();
     this.emit('rackAdded', rack);
     return this;
   }
@@ -839,7 +756,7 @@ export class RackViz extends EventEmitter {
     const rack = this.data.racks.find(r => r.id === rackId);
     if (!rack) return this;
     Object.assign(rack, rackData);
-    this.render();
+    this.renderer.render();
     this.emit('rackUpdated', rack);
     return this;
   }
@@ -848,7 +765,8 @@ export class RackViz extends EventEmitter {
     const index = this.data.racks.findIndex(r => r.id === rackId);
     if (index === -1) return this;
     const removed = this.data.racks.splice(index, 1)[0];
-    this.render();
+    this.scaleManager.update();
+    this.renderer.render();
     this.emit('rackRemoved', rackId, removed);
     return this;
   }
@@ -857,14 +775,14 @@ export class RackViz extends EventEmitter {
     return this.data.racks.find(r => r.id === rackId) || null;
   }
   
-  // === DEVICES ===
+  // DEVICES
   addDevice(rackId, deviceData) {
     const rack = this.getRack(rackId);
     if (!rack) return this;
     const device = { ...deviceData };
     if (!device.id) device.id = generateId('dev');
     rack.devices.push(device);
-    this.render();
+    this.renderer.render();
     this.emit('deviceAdded', device, rackId);
     return this;
   }
@@ -873,9 +791,8 @@ export class RackViz extends EventEmitter {
     const result = this._findDevice(deviceId);
     if (!result.device) return this;
     Object.assign(result.device, deviceData);
-    const needsFullRender = deviceData.slot !== undefined || deviceData.height !== undefined || deviceData.position !== undefined;
-    if (needsFullRender) {
-      this.render();
+    if (deviceData.slot !== undefined || deviceData.height !== undefined || deviceData.position !== undefined) {
+      this.renderer.render();
     } else {
       this.renderer.updateDevice(deviceId, deviceData);
     }
@@ -887,42 +804,38 @@ export class RackViz extends EventEmitter {
     const result = this._findDevice(deviceId);
     if (!result.device) return this;
     result.rack.devices.splice(result.index, 1);
-    this.render();
+    this.renderer.render();
     this.emit('deviceRemoved', deviceId, result.device);
     return this;
   }
   
   getDevice(deviceId) {
-    const result = this._findDevice(deviceId);
-    return result.device || null;
+    return this._findDevice(deviceId).device || null;
   }
   
   _findDevice(deviceId) {
     for (const rack of this.data.racks) {
       const index = rack.devices.findIndex(d => d.id === deviceId);
       if (index !== -1) return { device: rack.devices[index], rack, index };
-      
       for (const device of rack.devices) {
-        if (device.chassis && device.chassis.blades) {
-          const bladeIndex = device.chassis.blades.findIndex(b => b.id === deviceId);
-          if (bladeIndex !== -1) {
-            return { device: device.chassis.blades[bladeIndex], rack, index: bladeIndex, chassis: device };
-          }
+        if (device.chassis?.blades) {
+          const bi = device.chassis.blades.findIndex(b => b.id === deviceId);
+          if (bi !== -1) return { device: device.chassis.blades[bi], rack, index: bi, chassis: device };
         }
       }
     }
     return { device: null, rack: null, index: -1 };
   }
   
-  // === BLADES ===
+  // BLADES
   addBlade(chassisId, bladeData) {
     const result = this._findDevice(chassisId);
-    if (!result.device || !result.device.chassis) return this;
+    if (!result.device?.chassis) return this;
     const blade = { ...bladeData };
     if (!blade.id) blade.id = generateId('blade');
     if (!result.device.chassis.blades) result.device.chassis.blades = [];
     result.device.chassis.blades.push(blade);
-    this.render();
+    this.renderer.render();
     this.emit('bladeAdded', blade, chassisId);
     return this;
   }
@@ -930,11 +843,11 @@ export class RackViz extends EventEmitter {
   removeBlade(bladeId) {
     for (const rack of this.data.racks) {
       for (const device of rack.devices) {
-        if (device.chassis && device.chassis.blades) {
+        if (device.chassis?.blades) {
           const index = device.chassis.blades.findIndex(b => b.id === bladeId);
           if (index !== -1) {
             const removed = device.chassis.blades.splice(index, 1)[0];
-            this.render();
+            this.renderer.render();
             this.emit('bladeRemoved', bladeId, removed);
             return this;
           }
@@ -959,35 +872,27 @@ export class RackViz extends EventEmitter {
   }
   
   toggleChassis(chassisId) {
-    if (this.expandedChassis.has(chassisId)) {
-      this.collapseChassis(chassisId);
-    } else {
-      this.expandChassis(chassisId);
-    }
+    if (this.expandedChassis.has(chassisId)) this.collapseChassis(chassisId);
+    else this.expandChassis(chassisId);
     return this;
   }
   
-  // === VIEW ===
+  // VIEW
   setView(view) {
     if (view !== 'front' && view !== 'rear') return this;
     if (view !== this.currentView) {
       this.currentView = view;
       if (this.viewToggleBtn) this.viewToggleBtn.innerHTML = this._getViewIcon();
-      this.render();
+      this.renderer.render();
       this.emit('viewChange', view);
     }
     return this;
   }
   
-  toggleView() {
-    return this.setView(this.currentView === 'front' ? 'rear' : 'front');
-  }
+  toggleView() { return this.setView(this.currentView === 'front' ? 'rear' : 'front'); }
+  getView() { return this.currentView; }
   
-  getView() {
-    return this.currentView;
-  }
-  
-  // === HIGHLIGHTING ===
+  // HIGHLIGHT
   highlight(deviceId) {
     this.highlights.add(deviceId);
     this.renderer.highlight(deviceId);
@@ -1013,23 +918,12 @@ export class RackViz extends EventEmitter {
     return this;
   }
   
-  // === INFO PANEL ===
-  openInfoPanel(rackId) {
-    this.infoPanel.open(rackId);
-    return this;
-  }
+  // INFO PANEL
+  openInfoPanel(rackId) { this.infoPanel.open(rackId); return this; }
+  closeInfoPanel() { this.infoPanel.close(); return this; }
+  toggleInfoPanel(rackId) { this.infoPanel.toggle(rackId); return this; }
   
-  closeInfoPanel() {
-    this.infoPanel.close();
-    return this;
-  }
-  
-  toggleInfoPanel() {
-    this.infoPanel.toggle();
-    return this;
-  }
-  
-  // === FULLSCREEN ===
+  // FULLSCREEN
   enterFullscreen() {
     if (!this.isFullscreen && this.container.requestFullscreen) {
       this.container.requestFullscreen();
@@ -1046,34 +940,41 @@ export class RackViz extends EventEmitter {
     return this;
   }
   
-  toggleFullscreen() {
-    return this.isFullscreen ? this.exitFullscreen() : this.enterFullscreen();
-  }
+  toggleFullscreen() { return this.isFullscreen ? this.exitFullscreen() : this.enterFullscreen(); }
   
-  // === THEME ===
+  // THEME
   setTheme(theme) {
     this.theme = deepMerge(this.theme, theme);
     this.styleEl.textContent = this._generateStyles();
+    this.renderer.render();
     this.emit('themeChange', this.theme);
     return this;
   }
   
-  getTheme() {
-    return this.theme;
+  getTheme() { return this.theme; }
+  
+  // OPTIONS
+  setOption(key, value) {
+    if (key.includes('.')) {
+      const parts = key.split('.');
+      let obj = this.options;
+      for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
+      obj[parts[parts.length - 1]] = value;
+    } else {
+      this.options[key] = value;
+    }
+    this.renderer.render();
+    return this;
   }
   
-  // === SEARCH ===
+  // SEARCH
   search(query) {
-    if (!query) {
-      this.clearHighlight();
-      return this;
-    }
+    if (!query) { this.clearHighlight(); return this; }
     const q = query.toLowerCase();
     const matches = [];
     for (const rack of this.data.racks) {
       for (const device of rack.devices) {
-        if ((device.label && device.label.toLowerCase().includes(q)) ||
-            (device.id && device.id.toLowerCase().includes(q))) {
+        if ((device.label?.toLowerCase().includes(q)) || (device.id?.toLowerCase().includes(q)) || (device.type?.toLowerCase().includes(q))) {
           matches.push(device.id);
         }
       }
@@ -1083,10 +984,10 @@ export class RackViz extends EventEmitter {
     return this;
   }
   
-  // === LIFECYCLE ===
+  // LIFECYCLE
   render() {
-    this.renderer.render();
     this.scaleManager.update();
+    this.renderer.render();
     this.emit('render');
     return this;
   }

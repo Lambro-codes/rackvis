@@ -12,11 +12,12 @@ export class TooltipManager {
   }
   
   show(device, targetEl) {
-    clearTimeout(this.hideTimeout);
-    clearTimeout(this.showTimeout);
-    
+    // Check if tooltips are enabled
     const opts = this.rv.options.tooltip;
     if (!opts.enabled) return;
+    
+    clearTimeout(this.hideTimeout);
+    clearTimeout(this.showTimeout);
     
     const delay = opts.trigger === 'hover' ? opts.delay : 0;
     
