@@ -172,7 +172,7 @@ export class RackViz extends EventEmitter {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 12px;
+  padding: 8px;
 }
 
 [data-rv-id="${id}"] .rv-racks {
@@ -295,12 +295,15 @@ export class RackViz extends EventEmitter {
 
 /* Slots */
 [data-rv-id="${id}"] .rv-slot {
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(128,128,128,0.1);
 }
 
 [data-rv-id="${id}"] .rv-slot:last-child { border-bottom: none; }
 
 [data-rv-id="${id}"] .rv-slot-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px dashed ${t.rack.emptySlot};
   border-radius: 2px;
   margin: 1px 2px;
@@ -317,14 +320,17 @@ export class RackViz extends EventEmitter {
 /* Device */
 [data-rv-id="${id}"] .rv-device {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  padding: 0 6px;
+  justify-content: flex-start;
+  padding: 0 8px;
   margin: 1px 2px;
   background: ${t.device.background};
   border: 1px solid ${t.device.border};
   border-radius: 2px;
   cursor: pointer;
   overflow: hidden;
+  min-height: 0;
 }
 
 [data-rv-id="${id}"] .rv-device:hover {
@@ -349,7 +355,7 @@ export class RackViz extends EventEmitter {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  margin-right: 5px;
+  margin-right: 6px;
   flex-shrink: 0;
 }
 
@@ -368,6 +374,8 @@ export class RackViz extends EventEmitter {
   flex: 1;
   min-width: 0;
   overflow: hidden;
+  display: flex;
+  align-items: center;
 }
 
 [data-rv-id="${id}"] .rv-device-label {
@@ -375,6 +383,7 @@ export class RackViz extends EventEmitter {
   align-items: center;
   white-space: nowrap;
   font-size: 10px;
+  line-height: 1;
 }
 
 [data-rv-id="${id}"] .rv-device-name {
@@ -388,21 +397,25 @@ export class RackViz extends EventEmitter {
   margin: 0 4px;
   color: var(--rv-text-muted);
   font-size: 4px;
+  line-height: 1;
 }
 
 [data-rv-id="${id}"] .rv-device-type-inline {
   color: var(--rv-text-muted);
   font-size: 9px;
   text-transform: uppercase;
+  line-height: 1;
 }
 
 [data-rv-id="${id}"] .rv-device-position-badge {
   font-size: 8px;
   color: var(--rv-text-muted);
-  background: rgba(255,255,255,0.1);
-  padding: 1px 3px;
+  background: rgba(128,128,128,0.2);
+  padding: 2px 4px;
   border-radius: 2px;
-  margin-left: 4px;
+  margin-left: 6px;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 /* Label scroll */
@@ -429,14 +442,14 @@ export class RackViz extends EventEmitter {
 [data-rv-id="${id}"] .rv-chassis-header {
   display: flex;
   align-items: center;
-  padding: 3px 5px;
-  background: rgba(255,255,255,0.03);
+  padding: 4px 6px;
+  background: rgba(128,128,128,0.05);
   cursor: pointer;
   flex-shrink: 0;
-  min-height: 20px;
+  min-height: 22px;
 }
 
-[data-rv-id="${id}"] .rv-chassis-header:hover { background: rgba(255,255,255,0.06); }
+[data-rv-id="${id}"] .rv-chassis-header:hover { background: rgba(128,128,128,0.1); }
 
 [data-rv-id="${id}"] .rv-chassis-toggle {
   width: 12px;
@@ -445,6 +458,9 @@ export class RackViz extends EventEmitter {
   color: var(--rv-text-muted);
   transition: transform 0.15s ease;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 [data-rv-id="${id}"] .rv-chassis-toggle svg { width: 12px; height: 12px; }
@@ -458,14 +474,14 @@ export class RackViz extends EventEmitter {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 3px;
-  gap: 2px;
+  padding: 4px;
+  gap: 3px;
   border-top: 1px solid var(--rv-border);
 }
 
 [data-rv-id="${id}"] .rv-chassis.rv-chassis-expanded .rv-chassis-body {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
 }
 
 /* Blade */
@@ -474,27 +490,27 @@ export class RackViz extends EventEmitter {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3px 2px;
-  background: rgba(0,0,0,0.3);
+  padding: 4px 2px;
+  background: rgba(0,0,0,0.2);
   border: 1px solid var(--rv-border);
   border-radius: 2px;
   cursor: pointer;
-  min-height: 28px;
+  min-height: 32px;
 }
 
 [data-rv-id="${id}"] .rv-blade:hover {
-  background: rgba(255,255,255,0.05);
+  background: rgba(128,128,128,0.15);
   border-color: var(--rv-accent);
 }
 
 [data-rv-id="${id}"] .rv-blade-slot {
   font-family: var(--rv-font-mono);
-  font-size: 7px;
+  font-size: 8px;
   color: var(--rv-text-muted);
 }
 
 [data-rv-id="${id}"] .rv-blade-label {
-  font-size: 7px;
+  font-size: 8px;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
@@ -514,28 +530,28 @@ export class RackViz extends EventEmitter {
   background: ${t.tooltip.background};
   border: 1px solid ${t.tooltip.border};
   border-radius: 4px;
-  padding: 6px 8px;
-  max-width: 250px;
-  min-width: 120px;
+  padding: 8px 10px;
+  max-width: 280px;
+  min-width: 140px;
   box-shadow: ${t.tooltip.shadow};
   pointer-events: none;
   opacity: 0;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 [data-rv-id="${id}"] .rv-tooltip.rv-tooltip-visible { opacity: 1; }
 
 [data-rv-id="${id}"] .rv-tooltip-title {
   font-weight: 600;
-  margin-bottom: 4px;
-  padding-bottom: 4px;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
   border-bottom: 1px solid ${t.tooltip.titleBorder};
 }
 
 [data-rv-id="${id}"] .rv-tooltip-row {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   padding: 2px 0;
 }
 
@@ -555,10 +571,10 @@ export class RackViz extends EventEmitter {
   flex-shrink: 0;
 }
 
-[data-rv-id="${id}"] .rv-info-panel.rv-info-panel-open { width: 220px; }
+[data-rv-id="${id}"] .rv-info-panel.rv-info-panel-open { width: 240px; }
 
 [data-rv-id="${id}"] .rv-info-panel-header {
-  padding: 10px;
+  padding: 12px;
   border-bottom: 1px solid var(--rv-border);
   display: flex;
   justify-content: space-between;
@@ -567,7 +583,7 @@ export class RackViz extends EventEmitter {
 
 [data-rv-id="${id}"] .rv-info-panel-title {
   font-weight: 600;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 [data-rv-id="${id}"] .rv-info-panel-close {
@@ -582,34 +598,34 @@ export class RackViz extends EventEmitter {
 
 [data-rv-id="${id}"] .rv-info-panel-close:hover {
   color: var(--rv-text);
-  background: rgba(255,255,255,0.1);
+  background: rgba(128,128,128,0.2);
 }
 
-[data-rv-id="${id}"] .rv-info-panel-close svg { width: 14px; height: 14px; }
+[data-rv-id="${id}"] .rv-info-panel-close svg { width: 16px; height: 16px; }
 
 [data-rv-id="${id}"] .rv-info-panel-body {
   flex: 1;
   overflow-y: auto;
-  padding: 10px;
+  padding: 12px;
 }
 
-[data-rv-id="${id}"] .rv-info-section { margin-bottom: 12px; }
+[data-rv-id="${id}"] .rv-info-section { margin-bottom: 16px; }
 
 [data-rv-id="${id}"] .rv-info-section-title {
-  font-size: 8px;
+  font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--rv-text-muted);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   font-weight: 600;
 }
 
 [data-rv-id="${id}"] .rv-info-stat {
   display: flex;
   justify-content: space-between;
-  padding: 3px 0;
-  font-size: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding: 4px 0;
+  font-size: 11px;
+  border-bottom: 1px solid rgba(128,128,128,0.1);
 }
 
 [data-rv-id="${id}"] .rv-info-stat:last-child { border-bottom: none; }
@@ -619,27 +635,27 @@ export class RackViz extends EventEmitter {
 [data-rv-id="${id}"] .rv-info-device-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 [data-rv-id="${id}"] .rv-info-device-item {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 5px;
+  gap: 6px;
+  padding: 5px 6px;
   background: ${t.infoPanel.itemBackground};
-  border-radius: 2px;
+  border-radius: 3px;
   cursor: pointer;
-  font-size: 9px;
+  font-size: 10px;
 }
 
 [data-rv-id="${id}"] .rv-info-device-item:hover { background: ${t.infoPanel.itemBackgroundHover}; }
 
 [data-rv-id="${id}"] .rv-info-device-slot {
   font-family: var(--rv-font-mono);
-  font-size: 8px;
+  font-size: 9px;
   color: var(--rv-text-muted);
-  min-width: 24px;
+  min-width: 28px;
 }
 
 [data-rv-id="${id}"] .rv-info-device-name {
@@ -650,8 +666,8 @@ export class RackViz extends EventEmitter {
 }
 
 [data-rv-id="${id}"] .rv-info-device-status {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
 }
 
@@ -665,7 +681,7 @@ export class RackViz extends EventEmitter {
 }
 
 /* Scrollbar */
-[data-rv-id="${id}"] ::-webkit-scrollbar { width: 5px; height: 5px; }
+[data-rv-id="${id}"] ::-webkit-scrollbar { width: 6px; height: 6px; }
 [data-rv-id="${id}"] ::-webkit-scrollbar-track { background: transparent; }
 [data-rv-id="${id}"] ::-webkit-scrollbar-thumb { background: ${t.scrollbar.thumb}; border-radius: 3px; }
 [data-rv-id="${id}"] ::-webkit-scrollbar-thumb:hover { background: ${t.scrollbar.thumbHover}; }
@@ -673,13 +689,11 @@ export class RackViz extends EventEmitter {
   }
   
   _setupResizeObserver() {
-    let initialRender = true;
     this.resizeObserver = new ResizeObserver(entries => {
       for (const entry of entries) {
-        // Only recalculate on initial render, not on zoom
-        if (initialRender) {
-          this.scaleManager.update(entry.contentRect);
-          initialRender = false;
+        this.scaleManager.update(entry.contentRect);
+        if (this.data.racks.length > 0) {
+          this.renderer.render();
         }
         this.emit('resize', entry.contentRect);
       }
