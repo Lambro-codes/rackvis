@@ -348,6 +348,9 @@ var Renderer = class {
         isGhost = true;
       }
       if (isVisible) {
+        const existing = map.get(slot);
+        if (existing && !existing.isGhost && isGhost)
+          continue;
         map.set(slot, { device, isStart: true, isGhost });
         for (let u = slot + 1; u < slot + height; u++) {
           map.set(u, { device, isStart: false, isGhost });

@@ -150,6 +150,11 @@ export class Renderer {
       }
       
       if (isVisible) {
+        // a real (non-ghost) device must never lose its slot to a ghost registered later -
+        // two devices sharing one U (front + rear) previously overwrote in array order
+        // regardless of ghost status, so the real device could vanish behind a stale ghost.
+        const existing = map.get(slot);
+        if (existing && !existing.isGhost && isGhost) continue;
         map.set(slot, { device, isStart: true, isGhost });
         for (let u = slot + 1; u < slot + height; u++) {
           map.set(u, { device, isStart: false, isGhost });
