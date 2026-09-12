@@ -2,8 +2,8 @@
   "name": "rackvis",
   "version": "0.2.0",
   "description": "Dynamic server rack visualization library",
-  "main": "dist/rackvis.min.js",
-  "module": "dist/rackvis.esm.js",
+  "main": "dist/rackviz.min.js",
+  "module": "dist/rackviz.esm.js",
   "type": "module",
   "files": [
     "dist",

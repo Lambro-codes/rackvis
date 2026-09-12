@@ -17,6 +17,14 @@ export class EventEmitter {
   off(event, listener) {
     this._events.get(event)?.delete(listener);
   }
+
+  once(event, listener) {
+    const wrapper = (...args) => {
+      this.off(event, wrapper);
+      listener.apply(this, args);
+    };
+    return this.on(event, wrapper);
+  }
   
   emit(event, ...args) {
     const listeners = this._events.get(event);

@@ -128,7 +128,7 @@ This creates the `dist/` folder with:
 |--------|-------------|---------------|
 | `online` | Device is operational | Green (#22c55e) |
 | `offline` | Device is not responding | Red (#ef4444) |
-| `idle` | Device is idle/standby | Blue (#3b82f6) |
+| `idle` | Device is idle/standby | Gold (#eab308) |
 | `warning` | Device has warnings | Orange (#f97316) |
 | `critical` | Device has critical issues | Red (#dc2626) |
 | `maintenance` | Device is under maintenance | Purple (#8b5cf6) |
@@ -404,7 +404,7 @@ rack.toggleFullscreen();
 Apply a theme or theme overrides.
 
 ```javascript
-// Apply built-in light theme
+// Apply built-in light theme (see Theming section below for ESM import)
 rack.setTheme(RackVizThemes.light);
 
 // Apply custom overrides
@@ -504,6 +504,8 @@ rack.off('deviceClick', handler);
 | `deviceRemoved` | `deviceId, device` | Device removed |
 | `bladeAdded` | `blade, chassisId` | Blade added |
 | `bladeRemoved` | `bladeId, blade` | Blade removed |
+| `infoPanelOpen` | `rackId` | Info panel opened |
+| `infoPanelClose` | - | Info panel closed |
 
 ### Event Examples
 
@@ -529,11 +531,14 @@ rack.on('deviceNameCopied', (device, name) => {
 ### Built-in Themes
 
 ```javascript
-// Dark theme (default)
-rack.setTheme(RackVizThemes.dark);
+// Script-tag / UMD build: themes are on the RackVizThemes global
+rack.setTheme(RackVizThemes.dark);  // Dark theme (default)
+rack.setTheme(RackVizThemes.light); // Light theme
 
-// Light theme
-rack.setTheme(RackVizThemes.light);
+// ES Module build: import the named `themes` export instead
+import RackViz, { themes } from './dist/rackviz.esm.js';
+rack.setTheme(themes.dark);
+rack.setTheme(themes.light);
 ```
 
 ### Custom Theme

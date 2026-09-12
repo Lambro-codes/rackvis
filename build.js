@@ -34,8 +34,9 @@ const iifeBuild = {
     js: `
 // Make named exports available
 if (typeof window !== 'undefined') {
-  window.RackViz = RackViz.default || RackViz;
-  window.RackVizThemes = RackViz.themes;
+  var __RackVizNS = RackViz;
+  window.RackViz = __RackVizNS.default || __RackVizNS;
+  window.RackVizThemes = __RackVizNS.themes;
 }
 `
   }
