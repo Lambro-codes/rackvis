@@ -110,7 +110,7 @@ var RackViz = (() => {
       const headerHeight = 32;
       const rackBodyHeight = availHeight - headerHeight;
       this.unitHeight = Math.floor(rackBodyHeight / maxU);
-      this.unitHeight = Math.max(14, Math.min(28, this.unitHeight));
+      this.unitHeight = Math.max(4, Math.min(28, this.unitHeight));
     }
     getUnitHeight() {
       return this.unitHeight;
@@ -469,6 +469,8 @@ var RackViz = (() => {
         el.classList.add("rv-chassis-expanded");
       if (isGhost)
         el.classList.add("rv-device-ghost");
+      if (this.rv.highlights.has(device.id))
+        el.classList.add("rv-device-highlighted");
       const header = document.createElement("div");
       header.className = "rv-chassis-header";
       const toggle = document.createElement("span");
@@ -1308,7 +1310,8 @@ var RackViz = (() => {
   z-index: 5;
 }
 
-[data-rv-id="${id}"] .rv-device.rv-device-highlighted {
+[data-rv-id="${id}"] .rv-device.rv-device-highlighted,
+[data-rv-id="${id}"] .rv-chassis.rv-device-highlighted {
   outline: 2px solid var(--rv-accent);
   outline-offset: -1px;
   z-index: 10;

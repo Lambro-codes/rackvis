@@ -339,7 +339,8 @@ export class RackViz extends EventEmitter {
   z-index: 5;
 }
 
-[data-rv-id="${id}"] .rv-device.rv-device-highlighted {
+[data-rv-id="${id}"] .rv-device.rv-device-highlighted,
+[data-rv-id="${id}"] .rv-chassis.rv-device-highlighted {
   outline: 2px solid var(--rv-accent);
   outline-offset: -1px;
   z-index: 10;

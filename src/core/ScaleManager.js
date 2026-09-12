@@ -47,8 +47,10 @@ export class ScaleManager {
     // Use as much height as possible
     this.unitHeight = Math.floor(rackBodyHeight / maxU);
     
-    // Clamp to reasonable range - allow taller units now
-    this.unitHeight = Math.max(14, Math.min(28, this.unitHeight));
+    // Clamp to reasonable range - allow taller units now, but never force overflow past
+    // the container: a hard 14px floor here caused racks with many U's to always be
+    // taller than a shorter container regardless of the container's own size.
+    this.unitHeight = Math.max(4, Math.min(28, this.unitHeight));
   }
   
   getUnitHeight() {

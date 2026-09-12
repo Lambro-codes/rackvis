@@ -261,7 +261,8 @@ export class Renderer {
     el.style.gridRow = `${gridRowStart} / span ${height}`;
     if (isExpanded) el.classList.add('rv-chassis-expanded');
     if (isGhost) el.classList.add('rv-device-ghost');
-    
+    if (this.rv.highlights.has(device.id)) el.classList.add('rv-device-highlighted');
+
     // Header
     const header = document.createElement('div');
     header.className = 'rv-chassis-header';
