@@ -1,5 +1,5 @@
 {
-  "name": "rackvis",
+  "name": "rackviz",
   "version": "0.2.0",
   "description": "Dynamic server rack visualization library",
   "main": "dist/rackviz.min.js",
