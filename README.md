@@ -1,4 +1,4 @@
-# RackViz
+# RackVis
 
 A lightweight, dependency-free JavaScript library for visualizing server rack diagrams. Built for data center management, infrastructure monitoring, and capacity planning applications.
 
@@ -19,11 +19,11 @@ A lightweight, dependency-free JavaScript library for visualizing server rack di
 
 ```html
 <!-- Minified version -->
-<script src="https://cdn.jsdelivr.net/gh/Lambro-codes/rackvis@main/dist/rackviz.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Lambro-codes/rackvis@main/dist/RackVis.min.js"></script>
 
 <!-- Or ES Module version -->
 <script type="module">
-  import RackViz from 'https://cdn.jsdelivr.net/gh/Lambro-codes/rackvis@main/dist/rackviz.esm.js';
+  import RackVis from 'https://cdn.jsdelivr.net/gh/Lambro-codes/rackvis@main/dist/RackVis.esm.js';
 </script>
 ```
 
@@ -34,12 +34,12 @@ A lightweight, dependency-free JavaScript library for visualizing server rack di
 3. Include the script:
 
 ```html
-<!-- Option 1: Script tag (adds window.RackViz) -->
-<script src="path/to/dist/rackviz.min.js"></script>
+<!-- Option 1: Script tag (adds window.RackVis) -->
+<script src="path/to/dist/RackVis.min.js"></script>
 
 <!-- Option 2: ES Module -->
 <script type="module">
-  import RackViz from 'path/to/dist/rackviz.esm.js';
+  import RackVis from 'path/to/dist/RackVis.esm.js';
 </script>
 ```
 
@@ -55,9 +55,9 @@ npm run build
 ```
 
 This creates the `dist/` folder with:
-- `rackviz.min.js` - Minified, for `<script>` tags
-- `rackviz.esm.js` - ES Module, for modern bundlers
-- `rackviz.umd.js` - Universal, works everywhere
+- `RackVis.min.js` - Minified, for `<script>` tags
+- `RackVis.esm.js` - ES Module, for modern bundlers
+- `RackVis.umd.js` - Universal, works everywhere
 
 ## Quick Start
 
@@ -75,9 +75,9 @@ This creates the `dist/` folder with:
 <body>
   <div id="rack-container"></div>
   
-  <script src="https://cdn.jsdelivr.net/gh/Lambro-codes/rackvis@main/dist/rackviz.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/Lambro-codes/rackvis@main/dist/RackVis.min.js"></script>
   <script>
-    const rack = new RackViz('#rack-container');
+    const rack = new RackVis('#rack-container');
     
     rack.load({
       racks: [{
@@ -161,7 +161,7 @@ This creates the `dist/` folder with:
 ## Configuration Options
 
 ```javascript
-const rack = new RackViz('#container', {
+const rack = new RackVis('#container', {
   // View settings
   view: 'front',                    // Initial view: 'front' or 'rear'
   showViewToggle: true,             // Show front/rear toggle button
@@ -208,7 +208,7 @@ const rack = new RackViz('#container', {
 ### Constructor
 
 ```javascript
-const rack = new RackViz(container, options);
+const rack = new RackVis(container, options);
 ```
 
 - `container` - CSS selector string or DOM element
@@ -404,7 +404,7 @@ rack.toggleFullscreen();
 Apply a theme or theme overrides.
 
 ```javascript
-// Apply built-in light theme (see Theming section below for ESM import)
+// Apply built-in light theme
 rack.setTheme(RackVizThemes.light);
 
 // Apply custom overrides
@@ -446,7 +446,7 @@ rack.render();
 ```
 
 #### `destroy()`
-Clean up and remove the RackViz instance.
+Clean up and remove the RackVis instance.
 
 ```javascript
 rack.destroy();
@@ -454,7 +454,7 @@ rack.destroy();
 
 ## Events
 
-RackViz fires various events you can listen to.
+RackVis fires various events you can listen to.
 
 ### Subscribing to Events
 
@@ -479,7 +479,7 @@ rack.off('deviceClick', handler);
 
 | Event | Arguments | Description |
 |-------|-----------|-------------|
-| `init` | - | RackViz initialized |
+| `init` | - | RackVis initialized |
 | `load` | `data` | Data loaded |
 | `update` | `data` | Data updated |
 | `render` | - | Render completed |
@@ -531,14 +531,11 @@ rack.on('deviceNameCopied', (device, name) => {
 ### Built-in Themes
 
 ```javascript
-// Script-tag / UMD build: themes are on the RackVizThemes global
-rack.setTheme(RackVizThemes.dark);  // Dark theme (default)
-rack.setTheme(RackVizThemes.light); // Light theme
+// Dark theme (default)
+rack.setTheme(RackVizThemes.dark);
 
-// ES Module build: import the named `themes` export instead
-import RackViz, { themes } from './dist/rackviz.esm.js';
-rack.setTheme(themes.dark);
-rack.setTheme(themes.light);
+// Light theme
+rack.setTheme(RackVizThemes.light);
 ```
 
 ### Custom Theme
