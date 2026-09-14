@@ -39,18 +39,26 @@ export class ScaleManager {
     const widthPerRack = (availWidth - totalSpacing) / rackCount;
     this.rackWidth = Math.max(200, Math.min(350, widthPerRack));
     
-    // Calculate unit height to fill available space
-    // Header is ~32px
-    const headerHeight = 32;
-    const rackBodyHeight = availHeight - headerHeight;
-    
-    // Use as much height as possible
-    this.unitHeight = Math.floor(rackBodyHeight / maxU);
-    
-    // Clamp to reasonable range - allow taller units now, but never force overflow past
-    // the container: a hard 14px floor here caused racks with many U's to always be
-    // taller than a shorter container regardless of the container's own size.
-    this.unitHeight = Math.max(4, Math.min(28, this.unitHeight));
+    if (opts.unitHeight) {
+      // Fixed unit height: render every U at exactly this many px, independent of the
+      // container's own size. The container is then expected to size itself to the rack
+      // (height:auto) rather than the rack being fit into the container. Nothing else in the
+      // library needs to change - the rack body just grows to maxU * unitHeight.
+      this.unitHeight = opts.unitHeight;
+    } else {
+      // Calculate unit height to fill available space
+      // Header is ~32px
+      const headerHeight = 32;
+      const rackBodyHeight = availHeight - headerHeight;
+
+      // Use as much height as possible
+      this.unitHeight = Math.floor(rackBodyHeight / maxU);
+
+      // Clamp to reasonable range - allow taller units now, but never force overflow past
+      // the container: a hard 14px floor here caused racks with many U's to always be
+      // taller than a shorter container regardless of the container's own size.
+      this.unitHeight = Math.max(4, Math.min(28, this.unitHeight));
+    }
   }
   
   getUnitHeight() {

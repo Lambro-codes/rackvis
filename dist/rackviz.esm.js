@@ -71,10 +71,14 @@ var ScaleManager = class {
     const totalSpacing = spacing * (rackCount - 1);
     const widthPerRack = (availWidth - totalSpacing) / rackCount;
     this.rackWidth = Math.max(200, Math.min(350, widthPerRack));
-    const headerHeight = 32;
-    const rackBodyHeight = availHeight - headerHeight;
-    this.unitHeight = Math.floor(rackBodyHeight / maxU);
-    this.unitHeight = Math.max(4, Math.min(28, this.unitHeight));
+    if (opts.unitHeight) {
+      this.unitHeight = opts.unitHeight;
+    } else {
+      const headerHeight = 32;
+      const rackBodyHeight = availHeight - headerHeight;
+      this.unitHeight = Math.floor(rackBodyHeight / maxU);
+      this.unitHeight = Math.max(4, Math.min(28, this.unitHeight));
+    }
   }
   getUnitHeight() {
     return this.unitHeight;
